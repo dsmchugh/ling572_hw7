@@ -77,19 +77,19 @@ public class SupportVectorFile {
 		
 	}	
 
-	public double getRho() {
+	public Double getRho() {
 		return this.rho;
 	}
 	
-	public double getCoef0() {
+	public Double getCoef0() {
 		return this.coef0;
 	}
 	
-	public double getGamma() {
+	public Double getGamma() {
 		return this.gamma;
 	}
 	
-	public double getDegree() {
+	public Double getDegree() {
 		return this.degree;
 	}
 	

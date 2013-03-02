@@ -1,20 +1,33 @@
 package ling572
 
-import util.{ConditionalFreqDist, Instance, VectorFileReader}
+import svm.SVMModel
 import java.io.{PrintWriter, File}
 import scala.collection._
 import scala.collection.JavaConverters._
 import annotation.tailrec
+import util.{VectorInstance, SVMLightReader}
+
+
+case class ?:[T](x:T) {
+  def apply():T = x
+  def apply[U >: Null](f: T => U): ?:[U] = {
+    if (x == null) ?:[U](null)
+    else ?:[U](f(x))
+  }
+
+}
+
+
 
 object Driver extends App {
 
+  implicit class NullCoalescent[A](a: A){
+    def ??(b: => A) = if(a!=null) a else b
+  }
+
   var testData:File = null
-  var boundaryData:File = null
   var outputFile:File = null
   var modelFile:File = null
-  var beamSize:Double  = 0.0
-  var topN:Int = 0
-  var topK:Int = 0
 
   ////////////// argument parsing ///////////////////
 
@@ -23,8 +36,8 @@ object Driver extends App {
     System.exit(1)
   }
 
-  if (args.length != 7)
-   exit("Error: usage Driver test_data boundary_data model_file output_file beam_size top_N top_K")
+  if (args.length != 3)
+   exit("Error: usage Driver test_data model_file sys_output")
 
   try {
     this.testData = new File(args(0))
@@ -33,118 +46,49 @@ object Driver extends App {
   }
 
   try {
-    this.boundaryData = new File(args(1))
+    this.modelFile = new File(args(1))
   } catch {
-    case e:Exception => exit("Error: invalid boundary_data file")
+    case e:Exception => exit("Error: invalid model_file file")
   }
 
   try {
-    this.modelFile = new File(args(2))
+    this.outputFile = new File(args(2))
   } catch {
-    case e:Exception => exit("Error: invalid model file")
+    case e:Exception => exit("Error: invalid sys_output file")
   }
 
-  try {
-    this.outputFile = new File(args(3))
-  } catch {
-    case e:Exception => exit("Error: invalid output_file")
-  }
-
-
-  try {
-    this.beamSize = args(4).toDouble
-  } catch {
-      case e:Exception => exit("Error: invalid beam_size")
-  }
-
-  try {
-    this.topK = args(5).toInt
-  } catch {
-    case e:Exception => exit("Error: invalid top_N")
-  }
-
-  try {
-    this.topN = args(6).toInt
-  } catch {
-    case e:Exception => exit("Error: invalid top_K")
-  }
 
   ////////////// setup ///////////////////
+  val svfile = new SupportVectorFile()
+  svfile.read(modelFile)
+  val gamma = svfile.getGamma ?? 1.0
+  val degree = svfile.getDegree ?? 1.0
+  val coef0 = svfile.getCoef0 ?? 0.0
+  val rho = svfile.getRho ?? 0.0
+  val model = new SVMModel(gamma = gamma, degree = degree, coef0 = coef0, rho = rho, kernelType = svfile.getKernelType)
+  model.setSupportVectors(svfile.getVectorInstances)
 
-  val model:MaxEntModel = new MaxEntModel()
-  model.loadFromFile(modelFile)
+  val testInstances = SVMLightReader.indexInstances(testData)
 
-  val allInstances = VectorFileReader.indexInstances(testData).asScala
-
-  val boundaries = scala.io.Source.fromFile(boundaryData).getLines().map(x => x.toInt).toSeq
-  val confusionMatrix = new ConditionalFreqDist[String]()
-  val sysOut = new PrintWriter(outputFile)
-  sysOut.println("\n%%%%% test data:")
-  var count = 0
-  var correct = 0
 
   ///////////// search /////////////////
-
-  // helper function
-  @tailrec
-  def sentenceSearch(instances:Seq[Instance], boundaries:Seq[Int])  {
-    if (boundaries.isEmpty || instances.isEmpty) return
-
-    val s_length = boundaries.head
-    val beamSearch = new BeamSearch(topK, topN, beamSize, model)
-    beamSearch.search( (instances take s_length).asJava )
-
-    var node = beamSearch.getBestNode
-    val tags = new mutable.ArrayBuffer[String]
-    val nodes = new mutable.ArrayBuffer[BeamSearchNode]
-    while (node.getParent != null) {
-      tags += node.getTag
-      nodes += node
-      node = node.getParent
-    }
-
-    // sys_out
-    nodes.reverse.foreach {  node =>
-      sysOut.println(node.getName + " " + node.getGoldTag + " " + node.getTag + " " + node.getNodeProb)
-    }
-
-    // confusion matrix
-    val instanceLabels = instances.map( instance => instance.getLabel )
-    tags.reverse zip instanceLabels foreach { case (tag , gold) =>
-      count += 1
-      if (tag.equals(gold)) correct += 1
-      confusionMatrix.add(gold, tag)
-    }
-
-    // recurse
-    sentenceSearch(instances drop s_length, boundaries.tail)
-  }
-
-  // do tagging
-  sentenceSearch(allInstances,boundaries)
-
-  /////////// output ////////////
-
-  println("class_num=" + model.classLabels.length + " feat_num=" + model.features.size + "\n")
-
-  println("Confusion matrix for the test data:\nrow is the truth, column is the system output\n")
+  println("instance count: " + svfile.getVectorInstances.size)
+  println("gamma: " + gamma + "  degree: " + degree + "  coef0: " + coef0 + "  rho: " + rho + "  kernel: " + svfile.getKernelType)
 
 
-  // print confusion matrix
-  val classLabels = confusionMatrix.keySet.toSeq.sorted
-
-  print("\t")
-  for (label <- classLabels) print(label + " ")
   println()
-  for (gold <- classLabels) {
-    print(gold + " ")
-    for (label <- classLabels) {
-      print(confusionMatrix.N(gold, label) + " ")
-    }
-    println()
+
+
+  var count = 0
+  var correct = 0
+  testInstances.asScala.foreach { case (instance: VectorInstance) =>
+     val (classLabel, score) = model.classifyInstance(instance)
+     count += 1
+     if (classLabel.toString.equals(instance.getLabel)) correct += 1
+     println(instance.getLabel + " " + classLabel + " " + score.toString)
   }
 
-  println(" Test accuracy=" + (correct.toDouble) / count.toDouble)
+  println("Accuracy: " + correct.toDouble / count.toDouble)
 
 }
 

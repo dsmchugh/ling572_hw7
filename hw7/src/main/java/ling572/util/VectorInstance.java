@@ -1,16 +1,21 @@
 package ling572.util;
 
+import cern.colt.function.tdouble.IntDoubleProcedure;
+import cern.colt.map.tdouble.OpenIntDoubleHashMap;
 import cern.colt.matrix.tdouble.DoubleMatrix1D;
+import cern.colt.matrix.tdouble.impl.DenseDoubleMatrix1D;
 import cern.colt.matrix.tdouble.impl.SparseDoubleMatrix1D;
 
 import java.util.Map;
 
 public class VectorInstance implements Instance<Double> {
 
-    private DoubleMatrix1D vector = new SparseDoubleMatrix1D(100);
+    //private DoubleMatrix1D vector = new SparseDoubleMatrix1D(100);
+    private OpenIntDoubleHashMap features = new OpenIntDoubleHashMap();
     private String label;
     private String name;
     private double weight;
+    private int maxFeature = 0;
 
     /**
      * Assumes libSVM format (i.e. integer-valued) features
@@ -23,7 +28,8 @@ public class VectorInstance implements Instance<Double> {
     }
 
     public void addFeature(int feat_idx, Double value) {
-        vector.set(feat_idx, value);
+        if (feat_idx > maxFeature) maxFeature = feat_idx;
+        features.put(feat_idx, value);
     }
 
     public String getLabel() {
@@ -39,7 +45,7 @@ public class VectorInstance implements Instance<Double> {
     }
 
     public int getSize() {
-        return vector.cardinality();
+        return features.size();
     }
 
     public void setName(String name) {
@@ -60,7 +66,7 @@ public class VectorInstance implements Instance<Double> {
     }
 
     public boolean containsFeature(int feat_idx)  {
-        return (vector.get(feat_idx) != 0);
+        return (features.get(feat_idx) != 0);
     }
 
     public Double getFeatureValue(String feature) {
@@ -69,7 +75,7 @@ public class VectorInstance implements Instance<Double> {
     }
 
     public Double getFeatureValue(int feat_idx) {
-        return Double.valueOf(vector.get(feat_idx));
+        return Double.valueOf(features.get(feat_idx));
     }
 
     public Double getFeatureValueOrDefault(String feature, Double val) {
@@ -78,10 +84,10 @@ public class VectorInstance implements Instance<Double> {
     }
 
     public Double getFeatureValueOrDefault(int feat_idx, Double val) {
-        if (feat_idx > vector.size())
+        if (feat_idx > maxFeature)
             return val;
         else
-            return vector.get(feat_idx);
+            return features.get(feat_idx);
     }
 
     public Map<String, Double> getFeatures() {
@@ -93,6 +99,14 @@ public class VectorInstance implements Instance<Double> {
     }
 
     public DoubleMatrix1D getVector() {
+        final DenseDoubleMatrix1D vector = new DenseDoubleMatrix1D(maxFeature+1);
+        features.forEachPair( new IntDoubleProcedure() {
+            @Override
+            public boolean apply(int first, double second) {
+                vector.set(first,second);
+                return true;
+            }
+        });
         return vector;
     }
 }
