@@ -8,7 +8,11 @@ import ling572.util.VectorInstance;
 public class SupportVectorFile {
 	private KernelType kernel_type;
 	private double rho;
-	private List<VectorInstance> instances = new ArrayList();
+	private double coef0;
+	private double gamma;
+	private double degree;
+	
+	private List<VectorInstance> instances = new ArrayList<VectorInstance>();
 	
 	public void read(File dataFile) {
         try (BufferedReader reader = new BufferedReader(new FileReader(dataFile))) {
@@ -22,6 +26,15 @@ public class SupportVectorFile {
 	                	break;
 	                case "rho":
 	                	this.rho = Double.parseDouble(splitLine[1]);
+	                	break;
+	                case "degree":
+	                	this.degree = Double.parseDouble(splitLine[1]);
+	                	break;
+	                case "gamma":
+	                	this.gamma = Double.parseDouble(splitLine[1]);
+	                	break;
+	                case "coef0":
+	                	this.coef0 = Double.parseDouble(splitLine[1]);
 	                	break;
 	                default:
 	                	continue;
@@ -66,6 +79,18 @@ public class SupportVectorFile {
 
 	public double getRho() {
 		return this.rho;
+	}
+	
+	public double getCoef0() {
+		return this.coef0;
+	}
+	
+	public double getGamma() {
+		return this.gamma;
+	}
+	
+	public double getDegree() {
+		return this.degree;
 	}
 	
 	public KernelType getKernelType() {
