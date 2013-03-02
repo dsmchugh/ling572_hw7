@@ -7,10 +7,10 @@ import ling572.util.VectorInstance;
 
 public class SupportVectorFile {
 	private KernelType kernel_type;
-	private double rho;
-	private double coef0;
-	private double gamma;
-	private double degree;
+	private Double rho = null;
+	private Double coef0 = null;
+	private Double gamma = null;
+	private Double degree = null;
 	
 	private List<VectorInstance> instances = new ArrayList<VectorInstance>();
 	
