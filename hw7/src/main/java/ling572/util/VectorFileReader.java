@@ -13,7 +13,7 @@ public class VectorFileReader {
             while ((line = reader.readLine()) != null) {
                 String[] splitLine = line.split("\\s+");
 
-                Instance instance = new Instance();
+                Instance instance = new MapInstance();
                 instance.setName(splitLine[0]);
                 instance.setLabel(splitLine[1]);
                 

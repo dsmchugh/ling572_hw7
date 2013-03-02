@@ -1,61 +1,27 @@
 package ling572.util;
 
-import java.util.*;
+import java.util.Map;
 
-public class Instance {
+public interface Instance<T> {
+    void addFeature(String feature, T value);
 
-	private String name;
-    private String label;
-    private Map<String,Integer> features;
+    String getLabel();
 
-    public Instance() {
-        this.features = new HashMap<>();
-    }
+    void setLabel(String label);
 
-    public void addFeature(String feature, int value) {
-        this.features.put(feature, value);
-    }
+    String getName();
 
-    public String getLabel() {
-        return this.label;
-    }
-    
-    public void setLabel(String label) {
-    	this.label = label;
-    }
-    
-    public String getName() {
-    	return this.name;
-    }
-    
-    public int getSize() {
-    	return this.features.size();
-    }
-    
-    public void setName(String name) {
-    	this.name = name;
-    }
+    int getSize();
 
-    public boolean containsFeature(String feature) {
-        return this.features.containsKey(feature);
-    }
+    void setName(String name);
 
-    public Integer getFeatureValue(String feature) {
-        return this.features.get(feature);
-    }
+    boolean containsFeature(String feature);
 
-    public Integer getFeatureValueOrDefault(String feature, int val) {
-        if (this.containsFeature(feature))
-            return this.features.get(feature);
-        else
-            return val;
-    }
+    T getFeatureValue(String feature);
 
-    public Map<String,Integer> getFeatures() {
-        return this.features;
-    }
+    T getFeatureValueOrDefault(String feature, T val);
 
-    public void removeFeature(String feature) {
-        this.features.remove(feature);
-    }
+    Map<String,T> getFeatures();
+
+    void removeFeature(String feature);
 }
