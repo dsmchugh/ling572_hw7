@@ -10,6 +10,7 @@ public class VectorInstance implements Instance<Double> {
     private DoubleMatrix1D vector = new SparseDoubleMatrix1D(100);
     private String label;
     private String name;
+    private double weight;
 
     /**
      * Assumes libSVM format (i.e. integer-valued) features
@@ -43,6 +44,14 @@ public class VectorInstance implements Instance<Double> {
 
     public void setName(String name) {
         this.name = name;
+    }
+    
+    public void setWeight(double weight) {
+    	this.weight = weight;
+    }
+    
+    public double getWeight() {
+    	return this.weight;
     }
 
     public boolean containsFeature(String feature) {
