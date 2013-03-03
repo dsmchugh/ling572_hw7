@@ -6,6 +6,16 @@ resolvers += "sonatype-public" at "https://oss.sonatype.org/content/groups/publi
 
 jarName in assembly := "hw7.jar"
 
+mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) => 
+ {
+  case x => {
+    val oldstrat = old(x)
+    if (oldstrat == MergeStrategy.deduplicate) MergeStrategy.first
+    else oldstrat
+  }
+ }
+}
+
 name := "hw7"
 
 version := "1.0"
