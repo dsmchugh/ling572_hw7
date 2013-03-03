@@ -7,18 +7,6 @@ import scala.collection.JavaConverters._
 import annotation.tailrec
 import util.{VectorInstance, SVMLightReader}
 
-
-case class ?:[T](x:T) {
-  def apply():T = x
-  def apply[U >: Null](f: T => U): ?:[U] = {
-    if (x == null) ?:[U](null)
-    else ?:[U](f(x))
-  }
-
-}
-
-
-
 object Driver extends App {
 
   implicit class NullCoalescent[A](a: A){
@@ -59,6 +47,8 @@ object Driver extends App {
 
 
   ////////////// setup ///////////////////
+  val sysOut = new PrintWriter(outputFile)
+  
   val svfile = new SupportVectorFile()
   svfile.read(modelFile)
   val gamma = svfile.getGamma ?? 1.0
@@ -69,14 +59,16 @@ object Driver extends App {
   model.setSupportVectors(svfile.getVectorInstances)
 
   val testInstances = SVMLightReader.indexInstances(testData)
+  
+
 
 
   ///////////// search /////////////////
-  println("instance count: " + svfile.getVectorInstances.size)
-  println("gamma: " + gamma + "  degree: " + degree + "  coef0: " + coef0 + "  rho: " + rho + "  kernel: " + svfile.getKernelType)
+  //sysOut.println("instance count: " + svfile.getVectorInstances.size)
+  //sysOut.println("gamma: " + gamma + "  degree: " + degree + "  coef0: " + coef0 + "  rho: " + rho + "  kernel: " + svfile.getKernelType)
 
 
-  println()
+  //sysOut.println()
 
 
   var count = 0
@@ -85,10 +77,10 @@ object Driver extends App {
      val (classLabel, score) = model.classifyInstance(instance)
      count += 1
      if (classLabel.toString.equals(instance.getLabel)) correct += 1
-     println(instance.getLabel + " " + classLabel + " " + score.toString)
+     sysOut.println(instance.getLabel + " " + classLabel + " " + score.toString)
   }
 
-  println("Accuracy: " + correct.toDouble / count.toDouble)
-
+  sysOut.println("Accuracy: " + correct.toDouble / count.toDouble)
+  sysOut.close()
 }
 
