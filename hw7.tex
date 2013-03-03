@@ -1,0 +1,69 @@
+%%!TEX TS-program = xelatexmk
+\documentclass[oneside,justified,marginals=raggedouter]{tufte-handout}
+\usepackage{fontspec,xltxtra,xunicode}
+\usepackage{enumerate}
+\usepackage{booktabs}
+\usepackage[fleqn]{amsmath}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usetikzlibrary{plotmarks}
+
+\defaultfontfeatures{Mapping=tex-text}
+\setmainfont[%Mapping=tex-text,
+  BoldFont={Haarlemmer MT Std Bold},
+  SlantedFont={Haarlemmer MT Std Italic},
+  ItalicFont={Haarlemmer MT Std Italic},
+  BoldItalicFont={Haarlemmer MT Std Bold Italic},
+  SmallCapsFont={Haarlemmer MT Std: +smcp}
+]{Haarlemmer MT Std}
+\setsansfont[Scale=MatchLowercase,Mapping=tex-text]{TeX Gyre Heros}
+\setmonofont[Scale=MatchLowercase,Ligatures={NoRequired,NoCommon,NoContextual}]{TeX Gyre Cursor}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+% XeTeX workaround for tufte-latex (otherwise need to use xetex or nols options)
+\renewcommand{\allcapsspacing}[1]{{\addfontfeature{LetterSpace=20.0}#1}}
+\renewcommand{\smallcapsspacing}[1]{{\addfontfeature{LetterSpace=5.0}#1}}
+\renewcommand{\textsc}[1]{\smallcapsspacing{\textsmallcaps{#1}}}
+\renewcommand{\smallcaps}[1]{\smallcapsspacing{\scshape\MakeTextLowercase{#1}}}
+
+\widowpenalty=1000
+\clubpenalty=1000
+\raggedbottom
+\hyphenpenalty=5000
+\tolerance=1000
+
+\title{LING 572 Homework 7}
+\author{David McHugh and Chris Curtis}
+\date{2 Mar 2013}
+
+\clearpage\relax
+
+\begin{document}
+\maketitle
+
+
+\section{Question 1}
+
+Results on the binary task
+\vskip\baselineskip
+
+\begin{tabular}{@{}crlllllll@{}}
+\toprule
+Expt id & Kernel & gamma & coef0 & degree & total\_sv & Training & Test & Test Acc \\
+ &  &  &  &  &  & Acc & Acc & from Q2 \\ \midrule
+1 & linear & - & - & - & 535 & 0.997222 & 0.950000 & 0.950000 \\
+2 & polynomial & 1 & 0 & 2 & 792 & 0.997222 & 0.920000 & 0.920000 \\
+3 & polynomial & 0.1 & 0.5 & 2 & 775 & 0.997222 & 0.965000 & 0.965000 \\
+4 & RBF & 0.5 & - & - & 1798 & 0.997222 & 0.500000 & 0.500000 \\
+5 & sigmoid & 0.5 & -0.2 & - & 1214 & 0.536667 & 0.405000 & 0.405000 \\
+
+\bottomrule
+\end{tabular}
+
+
+\section{Question 2}
+
+The results in the last two columns are identical.
+
+\end{document}
