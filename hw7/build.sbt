@@ -6,14 +6,8 @@ resolvers += "sonatype-public" at "https://oss.sonatype.org/content/groups/publi
 
 jarName in assembly := "hw7.jar"
 
-mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) => 
- {
-  case x => {
-    val oldstrat = old(x)
-    if (oldstrat == MergeStrategy.deduplicate) MergeStrategy.first
-    else oldstrat
-  }
- }
+excludedJars in assembly <<= (fullClasspath in assembly) map { cp => 
+  cp filter {x => Seq("jtransforms-2.4.0.jar", "jplasma-1.2.0.jar") contains x.data.getName }
 }
 
 name := "hw7"
