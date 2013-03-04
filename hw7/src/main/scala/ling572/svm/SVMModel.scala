@@ -9,7 +9,10 @@ import ling572.KernelType
 class SVMModel(val gamma:Double = 1.0, val coef0:Double = 0.0, val degree:Double = 1.0, val rho:Double = 0.0,
                var kernelType:KernelType = KernelType.linear) {
 
-  type KernelMethod = (DoubleMatrix1D,DoubleMatrix1D) => Double
+  type KernelMethod = (DoubleMatrix1D, DoubleMatrix1D) => Double
+
+  //////////////////////////////
+  // KERNELS
 
   var supportVectors: List[VectorInstance] = null
 
@@ -20,6 +23,7 @@ class SVMModel(val gamma:Double = 1.0, val coef0:Double = 0.0, val degree:Double
   }
 
   val rbf:KernelMethod = (u:DoubleMatrix1D, v:DoubleMatrix1D) => {
+    // need to extend the shorter vector with zeroes; euclidean function requires same size
     val sdiff:Int = u.size.toInt - v.size.toInt
     val zeros = DoubleFactory1D.dense.make(math.abs(sdiff))
     val u1 = if (sdiff < 0) DoubleFactory1D.dense.append(u,zeros) else u
@@ -32,6 +36,10 @@ class SVMModel(val gamma:Double = 1.0, val coef0:Double = 0.0, val degree:Double
     math.tanh(gamma * u.zDotProduct(v) + coef0)
   }
 
+
+  ///////////////////////////////
+  // SUPPORT
+
   def setSupportVectors(vectors:List[VectorInstance]) {
     supportVectors = vectors
   }
@@ -39,6 +47,10 @@ class SVMModel(val gamma:Double = 1.0, val coef0:Double = 0.0, val degree:Double
   def setSupportVectors(vectors:java.util.List[VectorInstance]) {
     supportVectors = vectors.asScala.toList
   }
+
+
+  /////////////////////////////////
+  // SCORING
 
   def scoreInstance(u:VectorInstance, kernel:KernelMethod):Double = {
     val uv = u.getVector
