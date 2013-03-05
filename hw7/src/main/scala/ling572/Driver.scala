@@ -5,7 +5,7 @@ import java.io.{PrintWriter, File}
 import scala.collection._
 import scala.collection.JavaConverters._
 import annotation.tailrec
-import util.{VectorInstance, SVMLightReader}
+import util.{ConditionalFreqDist, VectorInstance, SVMLightReader}
 
 object Driver extends App {
 
@@ -57,6 +57,7 @@ object Driver extends App {
   val rho = svfile.getRho ?? 0.0
   val model = new SVMModel(gamma = gamma, degree = degree, coef0 = coef0, rho = rho, kernelType = svfile.getKernelType)
   model.setSupportVectors(svfile.getVectorInstances)
+  val confusionMatrix = new ConditionalFreqDist[String]()
 
   val testInstances = SVMLightReader.indexInstances(testData)
   
@@ -77,10 +78,25 @@ object Driver extends App {
      val (classLabel, score) = model.classifyInstance(instance)
      count += 1
      if (classLabel.toString.equals(instance.getLabel)) correct += 1
+     confusionMatrix.add(instance.getLabel, classLabel.toString)
      sysOut.println(instance.getLabel + " " + classLabel + " " + score.toString)
   }
-
-  sysOut.println("Accuracy: " + correct.toDouble / count.toDouble)
   sysOut.close()
+
+  // print confusion matrix
+  val classLabels = confusionMatrix.keySet.toSeq.sorted
+
+  print("\t")
+  for (label <- classLabels) print(label + " ")
+  println()
+  for (gold <- classLabels) {
+    print(gold + " ")
+    for (label <- classLabels) {
+      print(confusionMatrix.N(gold, label) + " ")
+    }
+    println()
+  }
+
+  println(" Test accuracy=" + (correct.toDouble) / count.toDouble)
 }
 
