@@ -46,9 +46,11 @@ class SVMModel(val gamma:Double = 1.0, val coef0:Double = 0.0, val degree:Double
   /////////////////////////////////
   // SCORING
 
+  // NB: the parallel add here adds a non-deterministic FP error, but it
+  // doesn't matter (it'll always be on the correct side of zero)
   def scoreInstance(u:VectorInstance, kernel:KernelMethod):Double = {
-    val uv = u.getVector
-    supportVectors.par.map(v => v.getWeight * kernel(uv,v.getVector)).sum - rho
+    val uvec = u.getVector
+    supportVectors.par.map(v => v.getWeight * kernel(uvec,v.getVector)).sum - rho
   }
 
   def classifyInstance(instance:VectorInstance):(Int,Double) = {
