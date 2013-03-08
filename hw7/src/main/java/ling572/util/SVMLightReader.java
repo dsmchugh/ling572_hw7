@@ -11,7 +11,7 @@ import java.util.List;
 
 public class SVMLightReader {
     public static List<VectorInstance> indexInstances(File dataFile) {
-        List<VectorInstance> instances = new ArrayList<VectorInstance>();
+        List<VectorInstance> instances = new ArrayList<>();
 
         // line formatted as: label feature1:value1 feature2:value2 ..."
         try (BufferedReader reader = new BufferedReader(new FileReader(dataFile))) {

@@ -1,12 +1,8 @@
 package ling572.svm
 
 import ling572.util.VectorInstance
-import cern.colt.matrix.tdouble.algo.DoubleStatistic
-import cern.colt.matrix.tdouble.{DoubleFactory1D, DoubleMatrix1D}
+import cern.colt.matrix.tdouble.DoubleMatrix1D
 import scala.collection.JavaConverters._
-import scala.concurrent._
-import ExecutionContext.Implicits.global
-import duration.Duration
 import ling572.KernelType
 
 class SVMModel(val gamma:Double = 1.0, val coef0:Double = 0.0, val degree:Double = 1.0, val rho:Double = 0.0,
@@ -26,16 +22,7 @@ class SVMModel(val gamma:Double = 1.0, val coef0:Double = 0.0, val degree:Double
   }
 
   val rbf:KernelMethod = (u:DoubleMatrix1D, v:DoubleMatrix1D) => {
-    // need to extend the shorter vector with zeroes; euclidean function requires same size
-    val sdiff:Int = u.size.toInt - v.size.toInt
-    val zeros = DoubleFactory1D.dense.make(math.abs(sdiff))
-    val u1 = if (sdiff < 0) DoubleFactory1D.dense.append(u,zeros) else u
-    val v1 = if (sdiff > 0) DoubleFactory1D.dense.append(v,zeros) else v
-    val dist = DoubleStatistic.EUCLID.apply(u1, v1)
-    math.exp(-gamma * dist * dist)
-  }
-
-  val rbf2:KernelMethod = (u:DoubleMatrix1D, v:DoubleMatrix1D) => {
+    // in testing this was ~30% faster than a direct Euclidean.
     val sq_dist = u.zDotProduct(u) + v.zDotProduct(v) - 2*u.zDotProduct(v)
     math.exp(-gamma * sq_dist)
   }
@@ -56,7 +43,6 @@ class SVMModel(val gamma:Double = 1.0, val coef0:Double = 0.0, val degree:Double
     supportVectors = vectors.asScala.toList
   }
 
-
   /////////////////////////////////
   // SCORING
 
@@ -69,7 +55,7 @@ class SVMModel(val gamma:Double = 1.0, val coef0:Double = 0.0, val degree:Double
     val kernel =  kernelType match {
       case KernelType.linear => linear
       case KernelType.polynomial => polynomial
-      case KernelType.rbf => rbf2
+      case KernelType.rbf => rbf
       case KernelType.sigmoid => sigmoid
     }
     val score = scoreInstance(instance, kernel)

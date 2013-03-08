@@ -10,7 +10,6 @@ import java.util.Map;
 
 public class VectorInstance implements Instance<Double> {
 
-    //private DoubleMatrix1D vector = new SparseDoubleMatrix1D(100);
     private OpenIntDoubleHashMap features = new OpenIntDoubleHashMap();
     private String label;
     private String name;
@@ -19,8 +18,8 @@ public class VectorInstance implements Instance<Double> {
 
     /**
      * Assumes libSVM format (i.e. integer-valued) features
-     * @param feature
-     * @param value
+     * @param feature  an integer-valued feature, represented as a string
+     * @param value the value of the feature
      */
     public void addFeature(String feature, Double value) {
         int feat_idx = Integer.parseInt(feature);
@@ -91,14 +90,15 @@ public class VectorInstance implements Instance<Double> {
     }
 
     public Map<String, Double> getFeatures() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;  // not used here
     }
 
     public void removeFeature(String feature) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        // not used here
     }
 
     public DoubleMatrix1D getVector() {
+        // if memory started to become an issue, could swap to SparseDoubleMatrix1D, but dense is faster.
         final DenseDoubleMatrix1D vector = new DenseDoubleMatrix1D(maxFeature+1);
         features.forEachPair( new IntDoubleProcedure() {
             @Override

@@ -2,9 +2,7 @@ package ling572
 
 import svm.SVMModel
 import java.io.{PrintWriter, File}
-import scala.collection._
 import scala.collection.JavaConverters._
-import annotation.tailrec
 import util.{ConditionalFreqDist, VectorInstance, SVMLightReader}
 
 object Driver extends App {
@@ -60,17 +58,8 @@ object Driver extends App {
   val confusionMatrix = new ConditionalFreqDist[String]()
 
   val testInstances = SVMLightReader.indexInstances(testData)
-  
 
-
-
-  ///////////// search /////////////////
-  //sysOut.println("instance count: " + svfile.getVectorInstances.size)
-  //sysOut.println("gamma: " + gamma + "  degree: " + degree + "  coef0: " + coef0 + "  rho: " + rho + "  kernel: " + svfile.getKernelType)
-
-
-  //sysOut.println()
-
+  ///////////// classify /////////////////
 
   var count = 0
   var correct = 0

@@ -12,7 +12,7 @@ public class SupportVectorFile {
 	private Double gamma = null;
 	private Double degree = null;
 	
-	private List<VectorInstance> instances = new ArrayList<VectorInstance>();
+	private List<VectorInstance> instances = new ArrayList<>();
 	
 	public void read(File dataFile) {
         try (BufferedReader reader = new BufferedReader(new FileReader(dataFile))) {
@@ -51,8 +51,8 @@ public class SupportVectorFile {
             	for (int i=1; i<splitLine.length; i++) {
             		String[] featureSplit = splitLine[i].split(":");
             		
-            		Integer feature_idx = null;
-    				Double value = null;
+            		Integer feature_idx;
+    				Double value;
     				
     				try {
     					feature_idx = Integer.parseInt(featureSplit[0]);
